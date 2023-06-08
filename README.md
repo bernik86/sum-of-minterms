@@ -17,6 +17,8 @@ The parameter `-t` can be used to generate and print the truth table of the expr
 
 ### Examples:
 
+Command:
+
 `python sum_of_minterms.py -F "A*B+C"`
 
 Output:
@@ -27,6 +29,8 @@ Boolean function normalized: F =  A*B+C
 Canonical form of F in sum-of-minterms notation:
 F = CBA + CBA' + CB'A + CB'A' + C'BA
 ```
+
+Command:
 
 `python sum_of_minterms.py -F "A*B+C" -t`
 
