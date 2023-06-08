@@ -89,6 +89,13 @@ class Gate:
             self.operator = "INPUT"
 
     def update(self, inputs: dict):
+        '''
+            Update the output of the gate.
+
+            inputs: a dict containing True/1 and False/0 values for all
+                    input variables.
+        '''
+
         if self.inp_1 is not None:
             self.inp_1.update(inputs)
 
@@ -110,6 +117,10 @@ class Gate:
                 raise NotImplementedError
 
     def print_truth_table(self):
+        '''
+            Print the truth table of Gate.
+        '''
+
         if len(self.truth_table) == 0:
             generate_truth_table(self)
 
@@ -117,10 +128,23 @@ class Gate:
         print_truth_table(self.truth_table, input_symbols)
 
     def print_sum_of_minterms(self):
+        '''
+            Prints the canonical sum of minterms form of the boolean expression.
+        '''
+
         print(sum_of_min_terms(self))
 
 
-def parse_outer_paranthesis(expr: str) -> (int, int, int):
+def parse_outer_paranthesis(expr: str) -> (int, int):
+    '''
+        Determines positions of the outermost opening and closing paranthesis.
+
+        expr: string that is parsed.
+
+        Returns tuple of integers representing the positions of the opening
+        and closing paranthesis.
+    '''
+
     i_open = -1
     i_close = -1
     count = 0
@@ -141,6 +165,14 @@ def parse_outer_paranthesis(expr: str) -> (int, int, int):
 
 
 def extract_input_symbols(fct_str: str) -> list[str]:
+    '''
+        Get list of variables in boolean expression in reversed alphabetical order.
+
+        fct_str: string representing boolean expression.
+
+        Returns list of input symbols.
+    '''
+
     input_symbols = {sym for sym in fct_str if sym.isalpha()}
     input_symbols = sorted(list(input_symbols), reverse=True)
 
@@ -148,6 +180,12 @@ def extract_input_symbols(fct_str: str) -> list[str]:
 
 
 def generate_truth_table(circuit: Gate):
+    '''
+        Build up the truth table for a given logical circuit/Gate.
+
+        circuit: logical circuit/Gate for which truth table is generated.
+    '''
+
     fct_str = circuit.expression
     input_symbols = extract_input_symbols(fct_str)
     n_sym = len(input_symbols)
@@ -162,6 +200,22 @@ def generate_truth_table(circuit: Gate):
 
 
 def read_table_from_file(filename: str) -> Table:
+    '''
+        Read truth table from file. The file needs to contain one column for
+        each input variable and one for the output variable. No comments or
+        empty lines are supported yet.
+
+        Example:
+        0 0 1
+        0 1 0
+        1 0 0
+        1 1 1
+
+        filename: path to file which contains truth table.
+
+        Returns the truth table as list[list[tuple[int, ...], int]]
+    '''
+
     with open(filename, "r", encoding="utf-8") as table_file:
         lines = table_file.readlines()
 
@@ -191,6 +245,16 @@ def read_table_from_file(filename: str) -> Table:
 
 
 def check_table(table: Table, n_inp: int):
+    '''
+        Checks whether the inputs of a given truth table are valid
+        (correct amount and order of 0s and 1s).
+
+        Raises a ValueError if truth table is inconsistent.
+
+        table: truth table to be checked.
+        n_inp: number of input variables (TODO: automatically determine n_inp).
+    '''
+
     for i, inp in enumerate(product([0, 1], repeat=n_inp)):
         table_inp = table[i][0]
 
@@ -201,6 +265,13 @@ def check_table(table: Table, n_inp: int):
 
 
 def print_truth_table(table: Table, input_symbols: Optional[list[str]]):
+    '''
+        Print formatted truth table to terminal.
+
+        table: table to print to terminal.
+        input_symbols: list of letters to use as names for inputs [optional]
+    '''
+
     if input_symbols is None:
         n_sym = len(table[0][0])
         input_symbols = list(string.ascii_uppercase[:n_sym])[::-1]
@@ -220,6 +291,14 @@ def print_truth_table(table: Table, input_symbols: Optional[list[str]]):
 
 
 def sum_of_min_terms(circuit: Gate) -> str:
+    '''
+        Create string of canonical sum of minterms form of logical expression.
+
+        circuit: logical circuit/Gate for which the canoncical form is created.
+
+        Returns string of the canonical form as "F = <sum-of-minterms>"
+    '''
+
     if len(circuit.truth_table) == 0:
         generate_truth_table(circuit)
 
@@ -231,6 +310,14 @@ def sum_of_min_terms(circuit: Gate) -> str:
 
 
 def build_minterms(table: Table, input_symbols: Optional[list[str]]) -> str:
+    '''
+        Determines canonical sum of minterms form from the truth table of a
+        boolean expression and returns it as string.
+
+        Returns string containing only the canonical form (without any formatting
+        sugar).
+    '''
+
     if input_symbols is None:
         n_sym = len(table[0][0])
         input_symbols = list(string.ascii_uppercase[:n_sym])[::-1]
@@ -253,6 +340,14 @@ def build_minterms(table: Table, input_symbols: Optional[list[str]]) -> str:
 
 
 def normalize_bool(value: bool) -> int:
+    '''
+        Convert bool (True/False) to int (0/1).
+
+        value: bool value to convert.
+
+        Returns 0 or 1 depending on value.
+    '''
+
     match value:
         case True:
             return 1
@@ -263,6 +358,16 @@ def normalize_bool(value: bool) -> int:
 
 
 def normalize_bool_fct_str(fct_str: str) -> str:
+    '''
+        Clean the raw form of the boolean expression given by the user.
+        Removes spaces, escape characters, etc. and inserts AND operator
+        where needed.
+
+        fct_str: string containing the raw form of the boolean expression.
+
+        Returns cleaned up string of boolean expression.
+    '''
+
     fct_str = (
         fct_str.upper()
         .replace(" ", "")
